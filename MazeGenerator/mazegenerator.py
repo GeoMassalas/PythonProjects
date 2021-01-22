@@ -7,7 +7,7 @@ import sys
 from tqdm import tqdm
 from os.path import isfile, join
 from collections import deque
-from random import choice
+from random import choice, shuffle
 import uuid
 
 class Maze:
@@ -24,6 +24,12 @@ class Maze:
 
     def get_number_of_cells(self):
         return self.height * self.width
+
+    def get_rows(self):
+        return self.height
+
+    def get_cols(self):
+        return self.width
 
     def break_wall(self, row, column, direction):
         self.grid[row][column] = self.grid[row][column].replace(direction, "")
@@ -144,8 +150,27 @@ def get_arguments():
         if (args.batch_size < 100) | (args.batch_size > size):
             parser.error("Batch size needs to be between 100 and maze size(Current Size: {}).".format(size))
     #TODO: algo selection
-    args.algo = 'dfs'
+    args.algo = 'kruskals'
     return args.size, args.batch_size, args.algo
+
+def get_walls(maze):
+    walls = []
+    for r in range(0,maze.get_rows()):
+        for c in range(0,maze.get_cols()):
+            if r < maze.get_rows() - 1:
+                walls.append(((r, c), (r+1, c)))
+            if c < maze.get_cols() - 1:
+                walls.append(((r, c), (r, c+1)))
+    return walls
+
+def kruskals(maze, image_folder):
+    walls = get_walls(maze)
+    f = list(range(len(walls)))
+    shuffle(f)
+    for i in f:
+        print(walls[i])
+    sys.exit()
+
 
 def dfs(maze, image_folder):
     parent_cell = Cell((0,0))
@@ -215,7 +240,6 @@ def create_video_from_frames(path, out, frames_per_second, batch_size):
     video_filename = out + '.mp4'
     final_video.write_videofile(video_filename)
 
-
 def generate_maze(rows, columns, method, batch):
     path = './' + uuid.uuid4().hex + '/'
     os.mkdir(path)
@@ -224,10 +248,13 @@ def generate_maze(rows, columns, method, batch):
     print("")
     print('Creating folders in {} for aditional data strorage.'.format(path))
     print("Remember to Delete additional files after the process is complete.")
-    print("")
+    print("")    
+    init_maze = Maze(rows, columns)
     if method == "dfs":
-        init_maze = Maze(rows, columns)
         maze = dfs(init_maze, path + 'images/')
+    elif method == "kruskals":
+        maze = kruskals(init_maze, path + 'images/')
+        
     video_filename = '{}_{}'.format(method, rows*columns)
     create_video_from_frames(path, video_filename, 24, batch)
     return maze
@@ -237,3 +264,4 @@ if __name__ == "__main__":
     MAX_ROW = 9*size
     MAX_COLUMN = 16*size
     maze = generate_maze(MAX_ROW, MAX_COLUMN, algo, batch)
+

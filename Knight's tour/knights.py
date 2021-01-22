@@ -68,7 +68,7 @@ def solve(r, c, depth=1):
             board[move[0]][move[1]] = "00"
 
 if __name__ == "__main__":
-    n = 9
+    n = 8
     warnsdorff = generate_warnsdorff(n)
     board = build_init_board(n)
     start = time.time()
