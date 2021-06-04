@@ -11,11 +11,8 @@ note = np.sin(frequency * t * 2 * np.pi) # Generate a sine wave of given frequen
 audio = note * (2**15 - 1) / np.max(np.abs(note)) # Ensure that highest value is in 16-bit range
 audio = audio.astype(np.int16) # Convert to 16-bit data
 
-start = time.time()
 while True:
-    curtime = time.time()
-    if curtime-start > reminder_seconds:
-        start = time.time()
-        for i in range(3):
-            play_obj = sa.play_buffer(audio, 1, 2, fs)
-            time.sleep(seconds + 0.1)
+    for i in range(3):
+        play_obj = sa.play_buffer(audio, 1, 2, fs)
+        time.sleep(seconds + 0.1)
+    time.sleep(reminder_seconds)
